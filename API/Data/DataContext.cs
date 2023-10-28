@@ -11,25 +11,36 @@ namespace API.Data
 
     public DbSet<AppUser> Users { get; set; }
     public DbSet<UserLike> Likes { get; set; }
+    public DbSet<Message> Messages { get; set; }
 
-        protected override void OnModelCreating(ModelBuilder modelBuilder)
-        {
-            base.OnModelCreating(modelBuilder);
+    protected override void OnModelCreating(ModelBuilder modelBuilder)
+    {
+        base.OnModelCreating(modelBuilder);
 
-            modelBuilder.Entity<UserLike>()
-              .HasKey(k => new {k.SourceUserId, k.TargetUserId});
+        modelBuilder.Entity<UserLike>()
+          .HasKey(k => new {k.SourceUserId, k.TargetUserId});
 
-            modelBuilder.Entity<UserLike>()
-              .HasOne(s => s.SourceUser)
-              .WithMany(l => l.LikedUsers)
-              .HasForeignKey(s => s.SourceUserId)
-              .OnDelete(DeleteBehavior.Cascade);
+        modelBuilder.Entity<UserLike>()
+          .HasOne(s => s.SourceUser)
+          .WithMany(l => l.LikedUsers)
+          .HasForeignKey(s => s.SourceUserId)
+          .OnDelete(DeleteBehavior.Cascade);
 
-            modelBuilder.Entity<UserLike>()
-              .HasOne(s => s.TargetUser)
-              .WithMany(l => l.LikedByUsers)
-              .HasForeignKey(s => s.TargetUserId)
-              .OnDelete(DeleteBehavior.Cascade);
-        }
+        modelBuilder.Entity<UserLike>()
+          .HasOne(s => s.TargetUser)
+          .WithMany(l => l.LikedByUsers)
+          .HasForeignKey(s => s.TargetUserId)
+          .OnDelete(DeleteBehavior.Cascade);
+
+        modelBuilder.Entity<Message>()
+          .HasOne(u => u.Recipient)
+          .WithMany(modelBuilder => modelBuilder.MessagesReceived)
+          .OnDelete(DeleteBehavior.Restrict);
+
+        modelBuilder.Entity<Message>()
+          .HasOne(u => u.Sender)
+          .WithMany(modelBuilder => modelBuilder.MessagesSent)
+          .OnDelete(DeleteBehavior.Restrict);
     }
+  }
 }
